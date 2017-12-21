@@ -50,7 +50,11 @@ class MinimalSvgStoreWebpackPlugin {
     }
 
     _generateSprites() {
-        const sprites = svgstore();
+        const sprites = svgstore({
+            svgAttrs: {
+                display: 'none',
+            }
+        });
 
         for (let iconPath of this.options.icons) {
             const iconContent = fs.readFileSync(iconPath, 'utf8');
