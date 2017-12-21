@@ -22,11 +22,14 @@ class MinimalSvgStoreWebpackPlugin {
         compiler.plugin('emit', (compilation, callback) => {
             // prepend payload to existing code
             const payload = this._generatePayload();
+            const asset = compilation.assets[this.options.asset];
 
-            compilation.assets[this.options.asset] = new ConcatSource(
-                payload,
-                compilation.assets[this.options.asset]
-            );
+            if (asset) {
+                compilation.assets[this.options.asset] = new ConcatSource(
+                    payload,
+                    compilation.assets[this.options.asset]
+                );
+            }
 
             callback();
         });
