@@ -21,7 +21,7 @@ class MinimalSvgStoreWebpackPlugin {
     apply(compiler) {
         compiler.plugin('emit', (compilation, callback) => {
             // prepend payload to existing code
-            const payload = this._generatePayload();
+            const payload = this._generatePayload(compilation.modules);
             const asset = compilation.assets[this.options.asset];
 
             if (asset) {
@@ -35,8 +35,8 @@ class MinimalSvgStoreWebpackPlugin {
         });
     }
 
-    _generatePayload() {
-        const sprites = this._generateSprites();
+    _generatePayload(modules) {
+        const sprites = this._generateSprites(modules);
         const payload = `
 (function (document) {
     var container = document.querySelector('body');
@@ -52,20 +52,30 @@ class MinimalSvgStoreWebpackPlugin {
         return payload;
     }
 
-    _generateSprites() {
+    _generateSprites(modules) {
+        const svgFilePaths = this._getSvgFilePaths(modules);
+
         const sprites = svgstore({
             svgAttrs: {
                 display: 'none',
             }
         });
 
-        for (let iconPath of this.options.icons) {
-            const iconContent = fs.readFileSync(iconPath, 'utf8');
-            const iconName = this.options.prefix + path.basename(iconPath).replace(/\.svg$/, '');
+        for (let svgFilePath of svgFilePaths) {
+            const iconContent = fs.readFileSync(svgFilePath, 'utf8');
+            const iconName = this.options.prefix + path.basename(svgFilePath).replace(/\.svg$/, '');
             sprites.add(iconName, iconContent);
         }
 
         return sprites.toString();
+    }
+
+    _getSvgFilePaths(modules) {
+        const svgFilePaths = modules
+            .filter(m => /webpack-minimal-svgstore-loader.+!/ig.test(m.request))
+            .map(m => m.resource);
+
+        return svgFilePaths;
     }
 }
 
