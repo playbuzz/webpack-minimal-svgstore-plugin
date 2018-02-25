@@ -18,6 +18,8 @@
   },
   "homepage": "https://github.com/playbuzz/webpack-minimal-svgstore-plugin#readme",
   "dependencies": {
+    "lodash.flatten": "^4.4.0",
+    "lodash.groupby": "^4.6.0",
     "svgstore": "^2.0.2"
   }
 }
