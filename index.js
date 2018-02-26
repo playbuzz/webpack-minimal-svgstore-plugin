@@ -3,15 +3,17 @@
 const fs = require('fs');
 const path = require('path');
 const svgstore = require('svgstore');
-const flatten = require('lodash.flatten');
-const groupBy = require('lodash.groupby');
+const _ = require('lodash');
 
 let ConcatSource;
+let RawSource;
 
 try {
     ConcatSource = require('webpack-core/lib/ConcatSource');
+    RawSource = require('webpack-core/lib/RawSource');
 } catch (e) {
     ConcatSource = require('webpack-sources').ConcatSource;
+    RawSource = require('webpack-sources').RawSource;
 }
 
 class MinimalSvgStoreWebpackPlugin {
@@ -23,8 +25,9 @@ class MinimalSvgStoreWebpackPlugin {
     apply(compiler) {
         compiler.plugin('emit', (compilation, callback) => {
             try {
-                // prepend payload to existing code
-                const groupedSvgFilePaths = this._getSvgFilePaths(compilation.modules);
+                const groupedSvgFilePaths = this.options.fileName
+                    ? this._getSvgFilePathsForSpecifiedAsset(compilation.modules, this.options.fileName)
+                    : this._getSvgFilePathsByRequiredEntry(compilation.modules);
 
                 Object.entries(groupedSvgFilePaths).forEach(([fileName, svgFilePathsForBundle]) => {
                     const svgPaths = svgFilePathsForBundle.map(x => x.svgFilePath);
@@ -36,8 +39,14 @@ class MinimalSvgStoreWebpackPlugin {
                             payload,
                             asset
                         );
+                    } else if (this.options.fileName) {
+                        compilation.assets[this.options.fileName] = new RawSource(
+                            payload
+                        );
                     } else {
-                        compilation.errors.push(new Error(`MinimalSvgStoreWebpackPlugin: Asset ${fileName} not found.`));
+                        compilation.errors.push(
+                            new Error(`MinimalSvgStoreWebpackPlugin: Asset ${fileName} not found.`)
+                        );
                     }
                 });
 
@@ -72,7 +81,6 @@ class MinimalSvgStoreWebpackPlugin {
             }
         });
 
-
         for (let svgFilePath of svgFilePaths) {
             const iconContent = fs.readFileSync(svgFilePath, 'utf8');
             const iconName = this.options.prefix + path.basename(svgFilePath).replace(/\.svg$/, '');
@@ -82,11 +90,27 @@ class MinimalSvgStoreWebpackPlugin {
         return sprites.toString();
     }
 
+    _getSvgFilePathsByRequiredEntry(modules) {
+        const svgFilePaths = this._getSvgFilePaths(modules);
+        const groupedSvgFilePaths = _.groupBy(svgFilePaths, 'fileName');
+
+        return groupedSvgFilePaths;
+    }
+
+    _getSvgFilePathsForSpecifiedAsset(modules, fileName) {
+        const svgFilePaths = this._getSvgFilePaths(modules)
+            .map(x => x.svgFilePath);
+
+        return {
+            [fileName]: { svgFilePaths }
+        };
+    }
+
     _getSvgFilePaths(modules) {
-        const svgFilePaths = flatten(modules
+        const svgFilePaths = _.flatten(modules
             .filter(module => /webpack-minimal-svgstore-loader.+!/ig.test(module.request))
             .map(module => {
-                const fileNames = flatten(module.mapChunks(
+                const fileNames = _.flatten(module.mapChunks(
                     chunk => chunk.files.filter(
                         file => /\.js$/.test(file)
                     )));
@@ -96,8 +120,8 @@ class MinimalSvgStoreWebpackPlugin {
                 }));
             }));
 
-        const groupedSvgFilePaths = groupBy(svgFilePaths, 'fileName');
-        return groupedSvgFilePaths;
+        const uniqSvgFilePaths = _.uniqWith(svgFilePaths, _.isEqual);
+        return uniqSvgFilePaths;
     }
 }
 
