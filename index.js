@@ -59,7 +59,11 @@ class MinimalSvgStoreWebpackPlugin {
 
     _generatePayload(svgFilePaths) {
         const sprites = this._generateSprites(svgFilePaths);
-        const payload = `!function(e){var n=e.querySelector("body");if(!n)throw new Error("svginjector: Could not find element: body");n.insertAdjacentHTML("afterbegin",${JSON.stringify(sprites)})}(document);`;
+        const payload =
+            `!function(e){var n=e.querySelector("body");` +
+            `if(!n)throw new Error("svginjector: Could not find element: body");` +
+            `n.insertAdjacentHTML("afterbegin",${JSON.stringify(sprites)})}(document);`;
+
         return payload;
     }
 
