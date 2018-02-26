@@ -59,18 +59,7 @@ class MinimalSvgStoreWebpackPlugin {
 
     _generatePayload(svgFilePaths) {
         const sprites = this._generateSprites(svgFilePaths);
-        const payload = `/* MinimalSvgStoreWebpackPlugin bootstrap */
-(function (document) {
-    var container = document.querySelector('body');
-
-    if (container) {
-        container.insertAdjacentHTML('afterbegin', ${JSON.stringify(sprites)});
-    } else {
-        throw new Error('svginjector: Could not find element: body');
-    }
-})(document);
-/* MinimalSvgStoreWebpackPlugin bootstrap end */`;
-
+        const payload = `!function(e){var n=e.querySelector("body");if(!n)throw new Error("svginjector: Could not find element: body");n.insertAdjacentHTML("afterbegin",${JSON.stringify(sprites)})}(document);`;
         return payload;
     }
 
@@ -98,11 +87,10 @@ class MinimalSvgStoreWebpackPlugin {
     }
 
     _getSvgFilePathsForSpecifiedAsset(modules, fileName) {
-        const svgFilePaths = this._getSvgFilePaths(modules)
-            .map(x => x.svgFilePath);
+        const svgFilePaths = this._getSvgFilePaths(modules);
 
         return {
-            [fileName]: { svgFilePaths }
+            [fileName]: svgFilePaths
         };
     }
 
