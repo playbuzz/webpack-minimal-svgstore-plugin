@@ -119,7 +119,7 @@ class MinimalSvgStoreWebpackPlugin {
      */
     _getSvgFilePaths(modules) {
         const svgFilePaths = _.flatten(modules
-            .filter(module => /webpack-minimal-svgstore-loader.+!/ig.test(module.request))
+            .filter(module => /minimal-svgstore-loader.+!/ig.test(module.request))
             .map(module => {
                 const fileNames = _.flatten(module.mapChunks(
                     chunk => chunk.files.filter(
