@@ -18,5 +18,6 @@ See [Minimal SVG Loader Documentation](https://github.com/playbuzz/webpack-minim
 
 ## LICENSE
 
-TODO: put ref
-[MIT]()
+Copyright (c) Playbuzz Ltd. All rights reserved.
+
+Licensed under the [MIT](LICENSE) License.
