@@ -5,16 +5,16 @@ It allows you to combine multiple SVG files into one, using `<symbol>` elements 
 ## Install
 
 ```bash
-    npm install minimal-svg-plugin -D
+    npm install minimal-svgstore-plugin -D
 ```
 or
 ```bash
-    yarn add minimal-svg-plugin -D
+    yarn add minimal-svgstore-plugin -D
 ```
 
 ## Configuration & Usage
 
-See [Minimal SVG Loader Documentation](https://github.com/playbuzz/webpack-minimal-svgstore-loader/)
+See [Minimal SVGstore Loader Documentation](https://github.com/playbuzz/webpack-minimal-svgstore-loader/)
 
 ## LICENSE
 
