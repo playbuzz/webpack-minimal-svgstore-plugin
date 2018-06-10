@@ -23,7 +23,7 @@ class MinimalSvgStoreWebpackPlugin {
     }
 
     apply(compiler) {
-        compiler.hooks.emit.tapAsync(MinimalSvgStoreWebpackPlugin.name, (compilation, callback) => {
+        compiler.plugin('emit', (compilation, callback) => {
             try {
                 const groupedSvgFilePaths = this.options.fileName
                     ? this._getSvgFilePathsForSpecifiedAsset(compilation.modules, this.options.fileName)
@@ -121,8 +121,7 @@ class MinimalSvgStoreWebpackPlugin {
         const svgFilePaths = _.flatten(modules
             .filter(module => /minimal-svgstore-loader.+!/ig.test(module.request))
             .map(module => {
-                const chunks = Array.from(module.chunksIterable);
-                const fileNames = _.flatten(chunks.map(
+                const fileNames = _.flatten(module.mapChunks(
                     chunk => chunk.files.filter(
                         file => /\.js$/.test(file)
                     )));
