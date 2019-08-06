@@ -62,10 +62,22 @@ class MinimalSvgStoreWebpackPlugin {
 
     _generatePayload(svgFilePaths) {
         const sprites = this._generateSprites(svgFilePaths);
-        const payload =
-            `!function(e){var n=e.querySelector("body");` +
-            `if(!n)throw new Error("MinimalSvgStoreWebpackPlugin: Could not find element: body");` +
-            `n.insertAdjacentHTML("afterbegin",${JSON.stringify(sprites)})}(document);`;
+        const query = this.options.parentId ? `#${this.options.parentId}` : 'body';
+        const addedShadowQuery = this.options.isShadowRoot ? '.shadowRoot' : '';
+        let payload =
+            `!function(e){\nvar n=e.querySelector("${query}")${addedShadowQuery};\n` +
+            `if(!n){throw new Error("MinimalSvgStoreWebpackPlugin: Could not find element: body");}\n`;
+        if (addedShadowQuery) {
+            payload += "var svgEl=document.createElement('div');" +
+                `svgEl.insertAdjacentHTML("afterbegin",${JSON.stringify(sprites)});` +
+                "n.appendChild(svgEl);"
+
+        }
+        else {
+            payload += `n.insertAdjacentHTML("afterbegin",${JSON.stringify(sprites)});`;
+        }
+
+        payload += "}(document);";
 
         return payload;
     }
@@ -107,15 +119,15 @@ class MinimalSvgStoreWebpackPlugin {
      * @returns {Array<Object>}
      * Returning object with the following structure:
      * [
-            {
+     {
                 svgFilePath: '/path/to/file.svg',
                 fileName: 'bundle.js'
             },
-            {
+     {
                 svgFilePath: '/path/to/another/file.svg',
                 fileName: 'bundle.js'
             }
-        ]
+     ]
      */
     _getSvgFilePaths(modules) {
         const svgFilePaths = _.flatten(modules
