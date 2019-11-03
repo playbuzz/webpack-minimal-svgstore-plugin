@@ -73,7 +73,7 @@ class MinimalSvgStoreWebpackPlugin {
     _generateSprites(svgFilePaths) {
         const sprites = svgstore({
             svgAttrs: {
-                display: 'none',
+                style: 'height: 0;'
             }
         });
 
