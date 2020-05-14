@@ -63,9 +63,9 @@ class MinimalSvgStoreWebpackPlugin {
     _generatePayload(svgFilePaths) {
         const sprites = this._generateSprites(svgFilePaths);
         const payload =
-            `!function(e){var n=e.querySelector("body");` +
+            `!function(w){if(!w)return;var e=w.document;var n=e.querySelector("body");` +
             `if(!n)throw new Error("MinimalSvgStoreWebpackPlugin: Could not find element: body");` +
-            `n.insertAdjacentHTML("afterbegin",${JSON.stringify(sprites)})}(document);`;
+            `n.insertAdjacentHTML("afterbegin",${JSON.stringify(sprites)})}(typeof window !== 'undefined' && window);`;
 
         return payload;
     }
